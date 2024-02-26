@@ -1,0 +1,7 @@
+# Custom
+.env
+log
+
+# temp
+sqlproj
+temp
