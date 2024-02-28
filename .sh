@@ -173,6 +173,8 @@ for file in $(find $path/temp/ -name "*.sql"); do
     fi
 done
 
+find $path/temp/ -type f -exec sed -i 's/\r$//' {} \;
+
 normalizedSqlprojList=()
 for element in "${sqlprojList[@]}"; do
     normalizedElement="${element#"$path"}"
