@@ -79,12 +79,8 @@ sqlproj="$path/$db.sqlproj"
 #     fi
 # fi
 
-echo "Runnin mssql-scripter to export database $db from server $server to folder $path"
-docker run --rm -it -v $path/temp:/export ghcr.io/akrista/mssql-scripter mssql-scripter -S $server -U $user -P $password -d $db --exclude-use-database --exclude-headers --file-per-object --display-progress -f /export
-
-echo "
-Changing file permissions, you may need to enter your password"
-sudo chown -R $USER:$USER $path/temp
+# echo "Runnin mssql-scripter to export database $db from server $server to folder $path"
+docker run --rm -v $path/temp:/export ghcr.io/akrista/mssql-scripter mssql-scripter -S $server -U $user -P $password -d $db --exclude-use-database --exclude-headers --file-per-object --display-progress -f /export
 
 for file in $path/temp/*; do
     if [[ -f $file ]]; then
