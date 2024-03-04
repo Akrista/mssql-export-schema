@@ -27,3 +27,57 @@ bash .sh -u user -p password -d yourDatabase -H localhost.or.the.host -P /direct
 - RoleMemberships is dismissed for some reason...
 
 Finally, i tried to emulate the schema used by SSDT, not the one used by [ADS(Azure Data Studio)](https://github.com/microsoft/azuredatastudio); while they support some of the features of SSDT, the .sqlproj generated seems not to be compatible with the one used by the schema compare of SSDT (also, for some reason ADS doesn't offer a CLI option of their schema compare).
+
+## TODO????
+
+```bash
+# echo "Loading environment variables from .env file"
+# TODO: Should we allow the use of an .env?
+# export $(grep -v '^#' .env | xargs)
+```
+
+```bash
+    # if ! [ -x "$(command -v docker-compose)" ]; then
+    #     # log "Error: docker-compose is not installed."
+    #     echo "Error: docker is not installed."
+    #     exit 1
+    # fi
+
+    # TODO: Should we use gum to check for dependencies?
+    # if ! [ -x "$(command -v gum)" ]; then
+    #     log "Error: gum is not installed."
+    #     echo "Error: gum is not installed."
+    #     exit 1
+    # fi
+```
+
+```bash
+# TODO: should we create the folder if it does not exist?
+# if [ ! -d $path ]; then
+#     echo "Folder $path does not exist, do you want me to create it? (y/n)"
+#     read create
+#     if [ $create = "y" ]; then
+#         mkdir $path
+#         echo "Folder $path created"
+#     else
+#         echo "Folder $path does not exist, exiting..."
+#         exit 1
+#     fi
+# fi
+
+# echo "Runnin mssql-scripter to export database $db from server $server to folder $path"
+```
+
+```bash
+            # TODO: This is a workaround to remove the first 2 lines of the file, we should find a better way to do this
+            # for string in "SET ANSI_NULLS ON" "SET ANSI_NULLS OFF" "QUOTED_IDENTIFIER ON" "QUOTED_IDENTIFIER OFF"; do
+            #     if grep -q "$string" $file; then
+            #         tail -n +2 $file >$file.tmp
+            #         mv $file.tmp $file
+            #         if grep -q "GO" $file; then
+            #             tail -n +2 $file >$file.tmp
+            #             mv $file.tmp $file
+            #         fi
+            #     fi
+            # done
+```

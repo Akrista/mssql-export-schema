@@ -32,54 +32,24 @@ if [[ -z $server || -z $user || -z $password || -z $db || -z $path ]]; then
     exit 1
 fi
 
-# echo "Loading environment variables from .env file"
-# TODO: Should we allow the use of an .env?
-# export $(grep -v '^#' .env | xargs)
-
 log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')]: $1" >log
 }
 
 check_dependencies() {
-    # log "Checking dependencies"
     if ! [ -x "$(command -v docker)" ]; then
-        # log "Error: docker is not installed."
         echo "Error: docker is not installed."
         exit 1
     fi
+}
 
-    # if ! [ -x "$(command -v docker-compose)" ]; then
-    #     # log "Error: docker-compose is not installed."
-    #     echo "Error: docker is not installed."
-    #     exit 1
-    # fi
-
-    # TODO: Should we use gum to check for dependencies?
-    # if ! [ -x "$(command -v gum)" ]; then
-    #     log "Error: gum is not installed."
-    #     echo "Error: gum is not installed."
-    #     exit 1
-    # fi
+win_sanitize() {
+    echo $1 | sed 's/[\\\/:?*<>|"]//g'
 }
 
 check_dependencies
 
 sqlproj="$path/$db.sqlproj"
-
-# TODO: should we create the folder if it does not exist?
-# if [ ! -d $path ]; then
-#     echo "Folder $path does not exist, do you want me to create it? (y/n)"
-#     read create
-#     if [ $create = "y" ]; then
-#         mkdir $path
-#         echo "Folder $path created"
-#     else
-#         echo "Folder $path does not exist, exiting..."
-#         exit 1
-#     fi
-# fi
-
-# echo "Runnin mssql-scripter to export database $db from server $server to folder $path"
 docker run --rm -v $path/temp:/export ghcr.io/akrista/mssql-scripter mssql-scripter -S $server -U $user -P $password -d $db --exclude-use-database --exclude-headers --file-per-object --display-progress -f /export
 
 for file in $path/temp/*; do
@@ -126,18 +96,6 @@ for schema in "${schemas[@]}"; do
 
         if [ $extension = "Table" ]; then
 
-            # TODO: This is a workaround to remove the first 2 lines of the file, we should find a better way to do this
-            # for string in "SET ANSI_NULLS ON" "SET ANSI_NULLS OFF" "QUOTED_IDENTIFIER ON" "QUOTED_IDENTIFIER OFF"; do
-            #     if grep -q "$string" $file; then
-            #         tail -n +2 $file >$file.tmp
-            #         mv $file.tmp $file
-            #         if grep -q "GO" $file; then
-            #             tail -n +2 $file >$file.tmp
-            #             mv $file.tmp $file
-            #         fi
-            #     fi
-            # done
-
             mv $file $path/temp/$schema/Tables/$objectName.sql
             exportedSchema+=("$path/temp/$schema/Tables/$objectName.sql")
         elif [ $extension = "View" ]; then
@@ -161,11 +119,23 @@ for file in $(find $path/temp/ -name "*.sql"); do
     objectName=$(echo $filename | cut -d '.' -f 1)
 
     if [ $extension = "User" ]; then
-        mv $file $path/temp/Security/$objectName.sql
-        exportedSchema+=("$path/temp/Security/$objectName.sql")
+        sanitized=$(win_sanitize $objectName)
+        if [ "$sanitized" != "$objectName" ]; then
+            mv $file $path/temp/Security/$sanitized.sql
+            exportedSchema+=("$path/temp/Security/$sanitized.sql")
+        else
+            mv $file $path/temp/Security/$objectName.sql
+            exportedSchema+=("$path/temp/Security/$objectName.sql")
+        fi
     elif [ $extension = "Schema" ]; then
-        mv $file $path/temp/Security/$objectName.sql
-        exportedSchema+=("$path/temp/Security/$objectName.sql")
+        sanitized=$(win_sanitize $objectName)
+        if [ "$sanitized" != "$objectName" ]; then
+            mv $file $path/temp/Security/$sanitized.sql
+            exportedSchema+=("$path/temp/Security/$sanitized.sql")
+        else
+            mv $file $path/temp/Security/$objectName.sql
+            exportedSchema+=("$path/temp/Security/$objectName.sql")
+        fi
     fi
 done
 
